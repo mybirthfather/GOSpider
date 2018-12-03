@@ -79,13 +79,15 @@ func (self *BookTextSpider) SpiderUrl(url string) error { //实现了 SpiderUrl 
 	fmt.Println("书籍爬完了") //等待爬玩书籍再去爬每本书的章节
 	// at this point, all goroutines are ready to go - we just need to
 	// tell them to start by closing the start channel slice 长度老是 0待解决
-
+	var wg sync.WaitGroup
 	all_book, _ := models.GetBookList()
 	for _, book1 := range all_book {
-		mutex := sync.Mutex{}
-		mutex.Lock()
-		defer mutex.Unlock()
+		wg.Add(1)
+		//mutex := sync.Mutex{}
+		//mutex.Lock()
+		//defer mutex.Unlock()
 		go func(singlebook *models.Book) {
+			defer wg.Done()
 			document, e := goquery.NewDocument(singlebook.Url)
 			if e != nil {
 				return
@@ -128,7 +130,7 @@ func (self *BookTextSpider) SpiderUrl(url string) error { //实现了 SpiderUrl 
 		}(book1)
 
 	}
-
+	wg.Wait()
 	//这个章节爬出来是乱的
 	// 开始爬章节了
 	//	//分割线 下面是原来的代码
