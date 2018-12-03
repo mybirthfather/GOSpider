@@ -83,9 +83,6 @@ func (self *BookTextSpider) SpiderUrl(url string) error { //实现了 SpiderUrl 
 	all_book, _ := models.GetBookList()
 	for _, book1 := range all_book {
 		wg.Add(1)
-		//mutex := sync.Mutex{}
-		//mutex.Lock()
-		//defer mutex.Unlock()
 		go func(singlebook *models.Book) {
 			defer wg.Done()
 			document, e := goquery.NewDocument(singlebook.Url)
