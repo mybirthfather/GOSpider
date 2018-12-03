@@ -19,7 +19,7 @@ type BookTextSpider struct {
 // <ul> 这个标签是所有分类的书籍 只提供div级别的 #和div。方法其他都是直接 find（"标签名"）
 //  class =r 最新入库小说
 //<div class="l"> 最新更新小说
-func (self *BookTextSpider) SpiderUrl(url string) (error) { //实现了 SpiderUrl 方法 爬取
+func (self *BookTextSpider) SpiderUrl(url string) error { //实现了 SpiderUrl 方法 爬取
 	book := SBook{}
 	book.Url = url
 	doc, err := goquery.NewDocument(url)
@@ -64,7 +64,7 @@ func (self *BookTextSpider) SpiderUrl(url string) (error) { //实现了 SpiderUr
 				bookname := selection.Find("a").Text()
 
 				author := selection.Text()
-				split := strings.Split(author, "/") //会多前面的内容 截取一下
+				split := strings.Split(author, "/")                                                                                                                               //会多前面的内容 截取一下
 				b := models.Book{Name: common.GbkToUtf8(bookname), CreatedAt: time.Now(), UpdatedAt: time.Now(), Author: common.GbkToUtf8(split[1]), Url: common.GbkToUtf8(href)} //先注释掉
 				name, e := models.GetBookByName(b.Name)
 				if e == nil || name == nil { //查询不到或者报错就插进去
@@ -84,14 +84,14 @@ func (self *BookTextSpider) SpiderUrl(url string) (error) { //实现了 SpiderUr
 	for _, book1 := range all_book {
 		mutex := sync.Mutex{}
 		mutex.Lock()
-	 defer 	mutex.Unlock()
-		go func(singlebook *models.Book ) {
+		defer mutex.Unlock()
+		go func(singlebook *models.Book) {
 			document, e := goquery.NewDocument(singlebook.Url)
 			if e != nil {
 				return
 			}
-			chapters := make([]models.Chapter, 0,10)
-			document.Find("dl").Children().Each(func(i int, selection *goquery.Selection) {//selection 这个selection里边有所有内容的
+			chapters := make([]models.Chapter, 0, 10)
+			document.Find("dl").Children().Each(func(i int, selection *goquery.Selection) { //selection 这个selection里边有所有内容的
 
 				content := selection.Find("a").Text()
 				href, _ := selection.Find("a").Attr("href")
@@ -107,20 +107,19 @@ func (self *BookTextSpider) SpiderUrl(url string) (error) { //实现了 SpiderUr
 				}
 				text := selection.Text()
 				utf8 := common.GbkToUtf8(text)
-				if len(chapter_title)>0 {
-					checkcontent=chapter_title
-				}else {
-					checkcontent=utf8
+				if len(chapter_title) > 0 {
+					checkcontent = chapter_title
+				} else {
+					checkcontent = utf8
 				}
 				chapter := models.Chapter{BookId: singlebook.Id, Title: checkcontent, Content: singlebook.Url + utf8href, Sort: i, Pre: pre,
-					Next: i + 1, UpdatedAt: time.Now(), CreatedAt: time.Now(),Bookidsort:strconv.Itoa(singlebook.Id)+"_"+singlebook.Url + utf8href}
-				fmt.Println("string(singlebook.Id)=",chapter.Bookidsort)
-				chapters= append(chapters, chapter)
+					Next: i + 1, UpdatedAt: time.Now(), CreatedAt: time.Now(), Bookidsort: strconv.Itoa(singlebook.Id) + "_" + singlebook.Url + utf8href}
+				chapters = append(chapters, chapter)
 			})
-			for k,child:=range chapters{
-				if strings.Contains(child.Title,"正文"){
+			for k, child := range chapters {
+				if strings.Contains(child.Title, "正文") {
 					chapter := chapters[k+1:]
-					for _,chapter_s :=range chapter{
+					for _, chapter_s := range chapter {
 						models.ChapterAdd(&chapter_s)
 					}
 					break
