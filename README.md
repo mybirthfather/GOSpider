@@ -21,4 +21,4 @@
 
 ## 这个项目想跑起来得需要以下部分
 1.github.com/astaxie/beego 框架  
-2. 
+2. 其他的按照提示 go get就行了唯一一个个坑是有一个包要翻墙 不过https://www.golangtc.com/download/package 走这个网站下载就行了
