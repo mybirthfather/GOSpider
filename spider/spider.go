@@ -5,31 +5,30 @@ import (
 	"fmt"
 	"github.com/robfig/cron"
 	"spider/config"
-	"spider/models"
 )
 
-type SBook struct{
-	Name string
-	Image string
-	Url string
+type SBook struct {
+	Name     string
+	Image    string
+	Url      string
 	Chapters []*SChapter
 }
 
-type SChapter struct{
-	Title string
-	Url string
-	Order int
-	Pre int
-	Next int
+type SChapter struct {
+	Title   string
+	Url     string
+	Order   int
+	Pre     int
+	Next    int
 	Content string
 }
 
-type Spider interface{
-    SpiderUrl(url string) error
+type Spider interface {
+	SpiderUrl(url string) error
 }
 
-func NewSpider(from string) (Spider, error){
-	switch from{
+func NewSpider(from string) (Spider, error) {
+	switch from {
 	case "booktxt":
 		return new(BookTextSpider), nil
 	default:
@@ -37,39 +36,21 @@ func NewSpider(from string) (Spider, error){
 	}
 }
 
-func Start(){
+func Start() {
 
-    c := cron.New()
+	c := cron.New()
 	spec := config.AppConfig.GetString("task.spec")
-    c.AddFunc(spec,getBook)
+	c.AddFunc(spec, getBook)
 	c.Start()
-    select{
-
-	}
+	select {}
 }
 
-func getBook(){
+func getBook() {
 	fmt.Println("getBook()")
 	s, err := NewSpider("booktxt")
-	if err != nil{
+	if err != nil {
+		return
 	}
-//http://www.booktxt.net/2_2219/
-	err = s.SpiderUrl("http://www.booktxt.net")
-	if err != nil{
-	}
-	var str string
-	fmt.Scan(&str)
-	books, _ := models.GetBookList("status", 0)
-	for _, book := range books{
-		go func(book *models.Book){
-			s, err := NewSpider(book.From)
-			if err != nil{
-				return
-			}
-			err = s.SpiderUrl(book.Url)
-			if err != nil{
-			}
-			fmt.Println("已爬取完毕")
-		}(book)
-	}
+	//http://www.booktxt.net/2_2219/
+	go s.SpiderUrl("http://www.booktxt.net")
 }
