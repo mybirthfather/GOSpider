@@ -42,7 +42,6 @@ func Start() {
 	spec := config.AppConfig.GetString("task.spec")
 	c.AddFunc(spec, getBook)
 	c.Start()
-	select {}
 }
 
 func getBook() {

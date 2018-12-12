@@ -76,7 +76,6 @@ func (self *BookTextSpider) SpiderUrl(url string) error { //实现了 SpiderUrl 
 		close(chanfor_book)
 	}()
 	<-chanfor_book
-	fmt.Println("书籍爬完了") //等待爬玩书籍再去爬每本书的章节
 	// at this point, all goroutines are ready to go - we just need to
 	// tell them to start by closing the start channel slice 长度老是 0待解决
 	var wg sync.WaitGroup

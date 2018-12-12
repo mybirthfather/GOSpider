@@ -1,32 +1,32 @@
 package config
 
 import (
-	"strings"
 	"errors"
+	"strings"
 
 	"path/filepath"
 )
 
 var AppConfig Config
 
-type Config interface{
+type Config interface {
 	GetString(string) string
-	GetInt(string)(int, error)
-	GetInt64(string)(int64, error)
-	GetFloat(string)(float64, error)
-	GetBool(string)(bool, error)
+	GetInt(string) (int, error)
+	GetInt64(string) (int64, error)
+	GetFloat(string) (float64, error)
+	GetBool(string) (bool, error)
 }
 
-func init(){
-	AppConfig,_ = NewConfig("ini", "src/spider/config/app.ini")
+func init() {
+	AppConfig, _ = NewConfig("ini", "src/spider/config/app.ini")
 }
 
-func NewConfig(adapter, filename string) (Config, error){
+func NewConfig(adapter, filename string) (Config, error) {
 	path, err := GetCurrentPath(filename)
-	if err != nil{
+	if err != nil {
 		return nil, err
 	}
-	switch adapter{
+	switch adapter {
 	case "ini":
 		return GetIniConfig(path)
 	default:
@@ -34,12 +34,12 @@ func NewConfig(adapter, filename string) (Config, error){
 	}
 }
 
-func GetCurrentPath(filename string) (path string, err error ){
-    path, err = filepath.Abs(filename)
-    if err != nil {
-        return
-    }
-    path = strings.Replace(path, "\\", "/", -1)
-    path = strings.Replace(path, "\\\\", "/", -1)
-    return 
+func GetCurrentPath(filename string) (path string, err error) {
+	path, err = filepath.Abs(filename)
+	if err != nil {
+		return
+	}
+	path = strings.Replace(path, "\\", "/", -1)
+	path = strings.Replace(path, "\\\\", "/", -1)
+	return
 }
